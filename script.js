@@ -1,0 +1,917 @@
+
+// Numbers Games Implementation
+document.addEventListener('DOMContentLoaded', () => {
+    const gameModal = document.getElementById('game-modal');
+    const closeModal = document.getElementById('close-modal');
+    const modalContent = document.getElementById('modal-content');
+    const playPrimeHunterBtn = document.getElementById('play-primehunter');
+    const play2048Btn = document.getElementById('play-2048');
+    // Prime Hunter Game Setup
+    if (playPrimeHunterBtn) {
+        playPrimeHunterBtn.addEventListener('click', () => {
+            modalContent.innerHTML = `
+                <div class="game-container text-center py-12">
+                    <h3 class="text-3xl font-orbitron mb-6">PRIME HUNTER</h3>
+                    <p class="text-xl text-gray-300 mb-8">Coming Soon!</p>
+                    <div class="flex justify-center">
+                        <button id="close-modal-btn" class="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg font-bold hover:scale-105 transition-transform">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('close-modal-btn').addEventListener('click', () => {
+                gameModal.classList.add('hidden');
+            });
+            gameModal.classList.remove('hidden');
+// 2048 Game Logic
+    function init2048Game() {
+// ... existing 2048 game code ...
+    }
+});
+}
+
+    // 2048 Game Setup
+if (play2048Btn) {
+        play2048Btn.addEventListener('click', () => {
+            modalContent.innerHTML = `
+                <div class="game-container">
+                    <div class="game-header flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-orbitron">2048</h3>
+                        <div class="score-container bg-gray-800/50 px-4 py-2 rounded-lg">
+                            <span class="text-gray-300">Score: </span>
+                            <span id="score" class="font-bold">0</span>
+                        </div>
+                    </div>
+                    <div id="game-board" class="bg-gray-800/50 rounded-lg p-2 grid grid-cols-4 gap-2"></div>
+                    <div class="game-footer mt-4">
+                        <button id="restart-btn" class="px-4 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
+                            Restart
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Initialize 2048 game
+            init2048Game();
+            gameModal.classList.remove('hidden');
+        });
+    }
+
+    closeModal.addEventListener('click', () => {
+        gameModal.classList.add('hidden');
+    });
+
+    function init2048Game() {
+        const board = document.getElementById('game-board');
+        const scoreElement = document.getElementById('score');
+        const restartBtn = document.getElementById('restart-btn');
+        
+        let boardState = Array(16).fill(0);
+        let score = 0;
+
+        // Initialize board with 2 random tiles
+        function initializeBoard() {
+            boardState = Array(16).fill(0);
+            score = 0;
+            scoreElement.textContent = score;
+            addRandomTile();
+            addRandomTile();
+            renderBoard();
+        }
+
+        // Add a random tile (2 or 4)
+        function addRandomTile() {
+            const emptyCells = boardState.map((val, idx) => val === 0 ? idx : null).filter(val => val !== null);
+            if (emptyCells.length > 0) {
+                const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                boardState[randomCell] = Math.random() < 0.9 ? 2 : 4;
+            }
+        }
+
+        // Render the board
+        function renderBoard() {
+            board.innerHTML = '';
+            boardState.forEach((value, index) => {
+                const tile = document.createElement('div');
+                tile.className = `tile flex items-center justify-center rounded-md font-bold text-lg ${value === 0 ? 'bg-gray-700/50' : 'bg-gray-600'} ${getTileColor(value)}`;
+                tile.textContent = value === 0 ? '' : value;
+                board.appendChild(tile);
+            });
+        }
+
+        // Get tile color based on value
+        function getTileColor(value) {
+            const colors = {
+                2: 'bg-gray-200 text-gray-800',
+                4: 'bg-gray-300 text-gray-800',
+                8: 'bg-yellow-200 text-gray-800',
+                16: 'bg-yellow-300 text-gray-800',
+                32: 'bg-orange-200 text-gray-800',
+                64: 'bg-orange-300 text-gray-800',
+                128: 'bg-red-200 text-gray-800',
+                256: 'bg-red-300 text-gray-800',
+                512: 'bg-purple-200 text-gray-800',
+                1024: 'bg-purple-300 text-gray-800',
+                2048: 'bg-gradient-to-br from-yellow-400 to-red-500 text-white'
+            };
+            return colors[value] || 'bg-gray-500 text-white';
+        }
+
+        // Handle keyboard input
+        function handleKeyDown(e) {
+            let moved = false;
+            const oldState = [...boardState];
+
+            switch(e.key) {
+                case 'ArrowUp':
+                    moved = moveUp();
+                    break;
+                case 'ArrowDown':
+                    moved = moveDown();
+                    break;
+                case 'ArrowLeft':
+                    moved = moveLeft();
+                    break;
+                case 'ArrowRight':
+                    moved = moveRight();
+                    break;
+                default:
+                    return;
+            }
+
+            if (moved) {
+                addRandomTile();
+                renderBoard();
+                if (isGameOver()) {
+                    setTimeout(() => alert(`Game Over! Your score: ${score}`), 100);
+                }
+            }
+        }
+
+        // Movement functions
+        function moveUp() {
+            let moved = false;
+            for (let col = 0; col < 4; col++) {
+                for (let row = 1; row < 4; row++) {
+                    const idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newRow = row;
+                    while (newRow > 0) {
+                        const newIdx = (newRow - 1) * 4 + col;
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            idx = newIdx;
+                            newRow--;
+                            moved = true;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+
+        function moveDown() {
+            let moved = false;
+            for (let col = 0; col < 4; col++) {
+                for (let row = 2; row >= 0; row--) {
+                    let idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newRow = row;
+                    while (newRow < 3) {
+                        const newIdx = (newRow + 1) * 4 + col;
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            idx = newIdx;
+                            newRow++;
+                            moved = true;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+
+        function moveLeft() {
+            let moved = false;
+            for (let row = 0; row < 4; row++) {
+                for (let col = 1; col < 4; col++) {
+                    const idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newCol = col;
+                    while (newCol > 0) {
+                        const newIdx = row * 4 + (newCol - 1);
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            idx = newIdx;
+                            newCol--;
+                            moved = true;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+
+        function moveRight() {
+            let moved = false;
+            for (let row = 0; row < 4; row++) {
+                for (let col = 2; col >= 0; col--) {
+                    let idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newCol = col;
+                    while (newCol < 3) {
+                        const newIdx = row * 4 + (newCol + 1);
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            idx = newIdx;
+                            newCol++;
+                            moved = true;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+        // Check if game is over
+        function isGameOver() {
+            // Check for empty cells
+            if (boardState.some(cell => cell === 0)) return false;
+            
+            // Check for possible merges
+            for (let i = 0; i < 16; i++) {
+                const row = Math.floor(i / 4);
+                const col = i % 4;
+                
+                // Check right neighbor
+                if (col < 3 && boardState[i] === boardState[i + 1]) return false;
+                
+                // Check bottom neighbor
+                if (row < 3 && boardState[i] === boardState[i + 4]) return false;
+            }
+            
+            return true;
+        }
+
+        // Add animation to tiles when they move or merge
+        function animateTile(index, value) {
+            const tiles = board.querySelectorAll('.tile');
+            if (tiles[index]) {
+                tiles[index].classList.add('animate-pulse');
+                setTimeout(() => {
+                    tiles[index].classList.remove('animate-pulse');
+                }, 200);
+            }
+        }
+// Initialize game
+        initializeBoard();
+        document.addEventListener('keydown', handleKeyDown);
+        
+        // Restart button
+        restartBtn.addEventListener('click', () => {
+            initializeBoard();
+        });
+
+        // Mobile touch controls
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+
+        board.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+
+        board.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const dx = touchEndX - touchStartX;
+            const dy = touchEndY - touchStartY;
+            
+            if (Math.abs(dx) > Math.abs(dy)) {
+                if (dx > 0) {
+                    handleKeyDown({key: 'ArrowRight'});
+                } else {
+                    handleKeyDown({key: 'ArrowLeft'});
+                }
+            } else {
+                if (dy > 0) {
+                    handleKeyDown({key: 'ArrowDown'});
+                } else {
+                    handleKeyDown({key: 'ArrowUp'});
+                }
+            }
+        }
+
+        // Improved movement functions
+        function moveUp() {
+            let moved = false;
+            for (let col = 0; col < 4; col++) {
+                for (let row = 1; row < 4; row++) {
+                    const idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newRow = row;
+                    while (newRow > 0) {
+                        const newIdx = (newRow - 1) * 4 + col;
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+
+        function moveDown() {
+            let moved = false;
+            for (let col = 0; col < 4; col++) {
+                for (let row = 2; row >= 0; row--) {
+                    const idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newRow = row;
+                    while (newRow < 3) {
+                        const newIdx = (newRow + 1) * 4 + col;
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+
+        function moveLeft() {
+            let moved = false;
+            for (let row = 0; row < 4; row++) {
+                for (let col = 1; col < 4; col++) {
+                    const idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newCol = col;
+                    while (newCol > 0) {
+                        const newIdx = row * 4 + (newCol - 1);
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+
+        function moveRight() {
+            let moved = false;
+            for (let row = 0; row < 4; row++) {
+                for (let col = 2; col >= 0; col--) {
+                    const idx = row * 4 + col;
+                    if (boardState[idx] === 0) continue;
+                    
+                    let newCol = col;
+                    while (newCol < 3) {
+                        const newIdx = row * 4 + (newCol + 1);
+                        if (boardState[newIdx] === 0) {
+                            boardState[newIdx] = boardState[idx];
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else if (boardState[newIdx] === boardState[idx]) {
+                            boardState[newIdx] *= 2;
+                            score += boardState[newIdx];
+                            scoreElement.textContent = score;
+                            boardState[idx] = 0;
+                            moved = true;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            return moved;
+        }
+
+        // Win condition check
+        function checkWin() {
+            if (boardState.some(cell => cell === 2048)) {
+                setTimeout(() => {
+                    if (confirm('You won! Your score: ' + score + '\n\nPlay again?')) {
+                        initializeBoard();
+                    }
+                }, 100);
+                return true;
+            }
+            return false;
+        }
+
+        // Update handleKeyDown to check for win
+        function handleKeyDown(e) {
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                let moved = false;
+                const oldState = [...boardState];
+
+                switch(e.key) {
+                    case 'ArrowUp':
+                        moved = moveUp();
+                        break;
+                    case 'ArrowDown':
+                        moved = moveDown();
+                        break;
+                    case 'ArrowLeft':
+                        moved = moveLeft();
+                        break;
+                    case 'ArrowRight':
+                        moved = moveRight();
+                        break;
+                }
+
+                if (moved) {
+                    addRandomTile();
+                    renderBoard();
+                    if (!checkWin() && isGameOver()) {
+                        setTimeout(() => {
+                            if (confirm(`Game Over! Your score: ${score}\n\nPlay again?`)) {
+                                initializeBoard();
+                            }
+                        }, 100);
+                    }
+                }
+            }
+        }
+}
+});
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Number Syndicate 🎲</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body class="bg-black text-white font-poppins overflow-x-hidden">
+    <!-- Animated Background -->
+    <div class="fixed inset-0 -z-10 opacity-30">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/20 to-purple-900/20"></div>
+        <div class="absolute inset-0 bg-grid-pattern"></div>
+    </div>
+
+    <!-- Glowing Cursor Follower -->
+    <div class="cursor-follower hidden md:block"></div>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <!-- Navigation -->
+        <nav class="py-6 flex justify-between items-center">
+            <div
+                class="text-2xl font-orbitron tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-400">
+                NUMBERS<span class="text-pink-400">GANG</span>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#about" class="hover:text-purple-300 transition-colors">About</a>
+                <a href="#games" class="hover:text-blue-300 transition-colors">Games</a>
+                <a href="#join" class="hover:text-pink-300 transition-colors">Join</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="min-h-screen flex flex-col justify-center items-center text-center py-20" data-aos="fade-up">
+            <h1
+                class="text-6xl md:text-8xl font-orbitron mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
+                NUMBERS GANG
+            </h1>
+            <p class="text-xl md:text-2xl max-w-2xl mx-auto mb-10 text-gray-300">
+                Numbers Gang is a 150-supply NFT collection on the Cardano blockchain, where every piece carries a
+                unique number — your identity in the gang world. Each number holds power, rank, and mystery. Hold, play,
+                and earn through battles, missions, and mini-games in the Numbers Arena.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="#games"
+                    class="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-lg hover:shadow-purple-500/30">
+                    PLAY NOW
+                </a>
+                <a href="https://www.jpg.store/collection/numbersgang?tab=minting"
+                    class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-lg hover:shadow-green-500/30">
+                    MINT NOW
+                </a>
+            </div>
+        </section>
+        <!-- About Section -->
+        <section id="about" class="py-20" data-aos="fade-up">
+            <div class="max-w-6xl mx-auto px-4">
+                <h2
+                    class="text-4xl font-orbitron mb-16 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-blue-400">
+                    OUR STORY
+                </h2>
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h3 class="text-2xl font-orbitron mb-4 text-purple-300">The Beginning</h3>
+                        <p class="text-lg text-gray-300 mb-6">
+                            Before the blockchain, chaos ruled the digital underworld. Then came The Numbers —
+                            mysterious codes that gave power to those who carried them. Each number represented a gang:
+                            some ruled with logic, others with luck, and a few with pure chaos. But when the Numbers
+                            crossed into Cardano, the war for dominance began.
+
+                            No names. No faces. Only numbers.
+                            And every number had a story to tell.
+                        </p>
+                        <h3 class="text-2xl font-orbitron mb-4 text-pink-300">The Mission</h3>
+                        <p class="text-lg text-gray-300">
+                            To restore balance to the Numberverse.
+                            Join your gang, rise through ranks, and prove your number’s power in the Numbers Arena.
+                            Earn, play, and conquer — because in this world, your number decides your fate.
+                        </p>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-purple-900/30 to-blue-900/30 p-8 rounded-xl border border-purple-400/20">
+                        <img src="https://i.ibb.co/YFTKFjM4/27.png" alt="Numbers Gang Team" class="rounded-lg w-full h-auto">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section id="benefits" class="py-20 bg-gradient-to-b from-gray-900/50 to-black">
+            <div class="max-w-6xl mx-auto px-4 text-center">
+                <h2
+                    class="text-4xl font-orbitron mb-16 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
+                    WHY MINT & PLAY?
+                </h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div
+                        class="bg-gradient-to-br from-purple-900/30 to-blue-900/30 p-8 rounded-xl border border-purple-400/20">
+                        <i data-feather="zap" class="w-12 h-12 mx-auto mb-4 text-purple-300"></i>
+                        <h3 class="text-2xl font-bold mb-4">Earn While You Play</h3>
+                        <p class="text-gray-300"<p> in gang battles and missions to win rewards, tokens, and bragging rights.</p>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-pink-900/30 to-purple-900/30 p-8 rounded-xl border border-pink-400/20">
+                        <i data-feather="clock" class="w-12 h-12 mx-auto mb-4 text-pink-300"></i>
+                        <h3 class="text-2xl font-bold mb-4"> Limited to 150</h3>
+                        <p class="text-gray-300">Only 150 Numbers exist. Once they’re gone, your number becomes legendary.</p>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-blue-900/30 to-indigo-900/30 p-8 rounded-xl border border-blue-400/20">
+                        <i data-feather="award" class="w-12 h-12 mx-auto mb-4 text-blue-300"></i>
+                        <h3 class="text-2xl font-bold mb-4">Power in Every Digit</h3>
+                        <p class="text-gray-300">Each NFT number carries unique rank, mystery, and potential in the Numbers Arena.
+</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap Section -->
+        <section id="roadmap" class="py-20">
+            <div class="max-w-6xl mx-auto px-4">
+                <h2
+                    class="text-4xl font-orbitron mb-16 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-blue-400">
+                    OUR JOURNEY
+                </h2>
+                <div class="relative">
+                    <!-- Timeline line -->
+                    <div
+                        class="absolute left-4 md:left-1/2 h-full w-1 bg-gradient-to-b from-purple-500 to-blue-500 transform -translate-x-1/2">
+                    </div>
+
+                    <!-- Timeline items -->
+                    <div class="space-y-16">
+                        <!-- Q1 2023 -->
+                        <div class="relative pl-12 md:pl-0 md:pr-12 md:text-right">
+                            <div class="md:max-w-md md:mr-auto md:pr-8">
+                                <h3 class="text-2xl font-orbitron text-pink-300 mb-2">CHAPTER 1</h3>
+                                <p class="text-gray-300">
+
+                                    Mint out 150 “OG Numbers” NFTs. </p>
+
+                                <p class="text-gray-300, margin-top:10px">Release $NUM TOKEN</p>
+                            </div>
+                            <div
+                                class="absolute top-0 left-0 w-4 h-4 rounded-full bg-purple-400 transform -translate-x-2 md:left-auto md:right-0 md:translate-x-2">
+                            </div>
+                        </div>
+
+                        <!-- Q2 2023 -->
+                        <div class="relative pl-12 md:pl-12 md:text-left">
+                            <div class="md:max-w-md md:ml-auto md:pl-8">
+                                <h3 class="text-2xl font-orbitron text-blue-300 mb-2">CHAPTER 2</h3>
+                                <p class="text-gray-300">Launch Games Officially — daily PLAY 2 EARN Rewards</p>
+                            </div>
+                            <div
+                                class="absolute top-0 left-0 w-4 h-4 rounded-full bg-pink-400 transform -translate-x-2">
+                            </div>
+                        </div>
+
+                        <!-- Q3 2023 -->
+                        <div class="relative pl-12 md:pl-0 md:pr-12 md:text-right">
+                            <div class="md:max-w-md md:mr-auto md:pr-8">
+                                <h3 class="text-2xl font-orbitron text-purple-300 mb-2">CHAPTER 3</h3>
+                                <p class="text-gray-300">Introduce Gang Missions and upgradable NFTs.</p>
+                            </div>
+                            <div
+                                class="absolute top-0 left-0 w-4 h-4 rounded-full bg-blue-400 transform -translate-x-2 md:left-auto md:right-0 md:translate-x-2">
+                            </div>
+                        </div>
+
+                        <!-- Q4 2023 -->
+                        <div class="relative pl-12 md:pl-12 md:text-left">
+                            <div class="md:max-w-md md:ml-auto md:pl-8">
+                                <h3 class="text-2xl font-orbitron text-pink-300 mb-2">CHAPTER 4</h3>
+                                <p class="text-gray-300">Expand to Season 2: “The Binary War” — new mint, new lore,
+                                    cross-gang battles.
+                                <div
+                                    class="absolute top-0 left-0 w-4 h-4 rounded-full bg-indigo-400 transform -translate-x-2">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery" class="py-20 bg-gradient-to-b from-black to-gray-900/50">
+            <div class="max-w-6xl mx-auto px-4">
+                <h2
+                    class="text-4xl font-orbitron mb-16 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
+                    IN ACTION
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="overflow-hidden rounded-lg aspect-square">
+                        <img src="https://i.ibb.co/5XFYnQVn/7.png" alt="Gameplay 1" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="overflow-hidden rounded-lg aspect-square">
+                        <img src="https://i.ibb.co/TqrMtNqs/2.png" alt="Gameplay 2" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="overflow-hidden rounded-lg aspect-square">
+                        <img src="https://i.ibb.co/TxgD6gL0/25.png" alt="Gameplay 3" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="overflow-hidden rounded-lg aspect-square">
+                        <img src="https://i.ibb.co/3yTm62sK/17.png" alt="Gameplay 4" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="overflow-hidden rounded-lg aspect-square">
+                        <img src="https://i.ibb.co/KcypHS88/16.png" alt="Gameplay 5" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                    <div class="overflow-hidden rounded-lg aspect-square">
+                        <img src="https://i.ibb.co/gZ0Bd56P/10.png" alt="Gameplay 6" class="w-full h-full object-cover hover:scale-110 transition-transform duration-500">
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Navigation Links Update -->
+
+        <!-- Games Section -->
+        <section id="games" class="py-20" data-aos="fade-up">
+            <h2
+                class="text-4xl font-orbitron text-center mb-20 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">
+                GAME LOUNGE
+            </h2>
+
+            <!-- 2048 Game -->
+            <div class="mb-32">
+                <div class="flex flex-col md:flex-row gap-10 items-center">
+                    <div class="flex-1" data-aos="fade-right">
+                        <h3 class="text-3xl font-orbitron mb-4">2048</h3>
+                        <p class="text-xl text-gray-300 mb-6">
+                            Merge the numbers, reach 2048, and become a legend in the syndicate.
+                        </p>
+                        <button class="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg font-bold hover:scale-105 transition-transform" id="play-2048">
+                            PLAY 2048
+                        </button>
+                    </div>
+                    <div class="flex-1 relative" data-aos="fade-left">
+                        <div
+                            class="game-preview bg-gradient-to-br from-purple-900/30 to-blue-900/30 border border-purple-400/20 rounded-xl overflow-hidden">
+                            <img src=https://i.ibb.co/4ZLtn9CS/18.png" alt="2048 Game Preview" class="w-full h-auto opacity-70">
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="bg-black/50 backdrop-blur-sm p-4 rounded-lg">
+                                <i data-feather="play" class="w-12 h-12 text-purple-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Numberle Game -->
+            <div class="mb-32">
+                <div class="flex flex-col md:flex-row-reverse gap-10 items-center">
+                    <div class="flex-1" data-aos="fade-left">
+                        <h3 class="text-3xl font-orbitron mb-4">NUMBERLE</h3>
+                        <p class="text-xl text-gray-300 mb-6">
+                            Crack the equation before your chances run out. Think fast, calculate faster.
+                        </p>
+                        <button class="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg font-bold hover:scale-105 transition-transform" id="play-numberle">
+                            PLAY NUMBERLE
+                        </button>
+                    </div>
+                    <div class="flex-1 relative" data-aos="fade-right">
+                        <div
+                            class="game-preview bg-gradient-to-br from-pink-900/30 to-purple-900/30 border border-pink-400/20 rounded-xl overflow-hidden">
+                            <img src="https://i.ibb.co/Y4hGt4YS/24.png" alt="Numberle Game Preview" class="w-full h-auto opacity-70">
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="bg-black/50 backdrop-blur-sm p-4 rounded-lg">
+                                <i data-feather="play" class="w-12 h-12 text-pink-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sumplete Game -->
+            <div class="mb-32">
+                <div class="flex flex-col md:flex-row gap-10 items-center">
+                    <div class="flex-1" data-aos="fade-right">
+                        <h3 class="text-3xl font-orbitron mb-4">SUMPLETE</h3>
+                        <p class="text-xl text-gray-300 mb-6">
+                            The ultimate brain bender that even AI plays. Can you outsmart the grid?
+                        </p>
+                        <button class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg font-bold hover:scale-105 transition-transform" id="play-sumplete">
+                            PLAY SUMPLETE
+                        </button>
+                    </div>
+                    <div class="flex-1 relative" data-aos="fade-left">
+                        <div
+                            class="game-preview bg-gradient-to-br from-blue-900/30 to-indigo-900/30 border border-blue-400/20 rounded-xl overflow-hidden">
+                            <img src="https://i.ibb.co/Fb4VHqF7/32.png" alt="Sumplete Game Preview" class="w-full h-auto opacity-70">
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="bg-black/50 backdrop-blur-sm p-4 rounded-lg">
+                                <i data-feather="play" class="w-12 h-12 text-blue-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Join Section -->
+        <section id="join" class="py-32 text-center" data-aos="fade-up">
+            <div class="max-w-4xl mx-auto">
+                <h2
+                    class="text-4xl md:text-5xl font-orbitron mb-8 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
+                    JOIN THE NUMBERS GANG
+                </h2>
+                <p class="text-xl md:text-2xl text-gray-300 mb-12">
+                    Think you've got number magic in your DNA?<br>
+                    Join our underground network of math rebels.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="https://www.jpg.store/collection/numbersgang?tab=minting"
+                        class="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full font-bold text-lg hover:scale-105 transition-transform">
+                        MINT
+                    </a>
+                    <a href="#"
+                        class="px-8 py-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full font-bold text-lg hover:scale-105 transition-transform">
+                        EMAIL SIGNUP
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-12 border-t border-gray-800/50">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="text-xl font-orbitron tracking-wider mb-4 md:mb-0">
+                    DIGITAL<span class="text-pink-400">NUMBERS</span>
+                </div>
+                <div class="flex space-x-6">
+                    <a
+                        href="#"><i data-feather="twitter" class="text-gray-400 hover:text-blue-300 transition-colors"></i></a>
+                    <a
+                        href="#"><i data-feather="github" class="text-gray-400 hover:text-purple-300 transition-colors"></i></a>
+                    <a
+                        href="#"><i data-feather="instagram" class="text-gray-400 hover:text-pink-300 transition-colors"></i></a>
+                </div>
+            </div>
+            <div class="mt-8 text-center text-gray-500 text-sm">
+                © 2025 NUMBERS GANG. Made for math rebels.
+            </div>
+        </footer>
+    </div>
+
+    <!-- Game Modals -->
+    <div id="game-modal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden">
+        <div
+            class="relative bg-gray-900/90 backdrop-blur-lg rounded-xl max-w-4xl w-full mx-4 p-6 border border-purple-500/30">
+            <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-feather="x" class="w-8 h-8"></i>
+            </button>
+            <div id="modal-content" class="p-4">
+                <!-- Game will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    </script>
+    <script src="script.js"></script>
+    <script src="https://huggingface.co/deepsite/deepsite-badge.js"></script>
+</body>
+
+</html>

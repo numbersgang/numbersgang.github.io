@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Poppins:wght@300;500;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --color-purple: #a855f7;
+    --color-pink: #ec4899;
+    --color-blue: #3b82f6;
+    --color-indigo: #6366f1;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+.font-orbitron {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.bg-grid-pattern {
+    background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.cursor-follower {
+    position: fixed;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, rgba(59, 130, 246, 0) 70%);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    transition: transform 0.1s ease-out;
+    filter: blur(10px);
+}
+
+.game-preview {
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px -10px rgba(168, 85, 247, 0.2);
+}
+.game-preview:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px -10px rgba(168, 85, 247, 0.4);
+}
+/* Timeline Styles */
+.relative.pl-12::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--color-purple), var(--color-blue));
+}
+/* Mint Button Animation */
+@keyframes pulse-green {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+}
+.pulse-green {
+    animation: pulse-green 2s infinite;
+}
+
+/* Gallery Hover Effects */
+.gallery-item {
+    transition: transform 0.5s ease, box-shadow 0.3s ease;
+}
+.gallery-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);
+}
+
+/* Responsive Timeline */
+@media (min-width: 768px) {
+    .relative.pl-12::before {
+        left: auto;
+        right: 0;
+    }
+}
+
+/* Numberle Game Styles */
+.numberle-key {
+    transition: all 0.2s ease;
+}
+.numberle-key:active {
+    transform: scale(0.95);
+}
+/* Sumplete Game Styles */
+#sumplete-board {
+    display: grid;
+    gap: 4px;
+}
+
+#sumplete-board div {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+/* Prime Hunter Game Styles */
+.cell {
+    aspect-ratio: 1/1;
+    transition: all 0.15s ease;
+    font-size: 1.1rem;
+}
+
+@media (min-width: 768px) {
+    .cell {
+        font-size: 1.3rem;
+    }
+}
+
+.timer-container {
+    background-color: rgba(31, 41, 55, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#new-game-btn {
+    background-color: rgba(16, 185, 129, 0.8);
+    transition: all 0.2s ease;
+}
+
+#new-game-btn:hover {
+    background-color: rgba(16, 185, 129, 1);
+    transform: translateY(-2px);
+}
+
+#reset-btn {
+    background-color: rgba(5, 150, 105, 0.8);
+    transition: all 0.2s ease;
+}
+
+#reset-btn:hover {
+    background-color: rgba(5, 150, 105, 1);
+    transform: translateY(-2px);
+}
+
+/* 2048 Game Styles */
+.game-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+#game-board {
+    aspect-ratio: 1/1;
+    background-color: rgba(31, 41, 55, 0.5);
+    border-radius: 8px;
+}
+.tile {
+    aspect-ratio: 1/1;
+    transition: all 0.15s ease;
+    font-size: 1.5rem;
+    animation-duration: 0.2s;
+}
+
+.animate-pulse {
+    animation-name: pulse;
+    animation-timing-function: ease-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.new-tile {
+    animation: appear 0.2s ease-out;
+}
+
+@keyframes appear {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.merged-tile {
+    animation: merge 0.2s ease-out;
+}
+
+@keyframes merge {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+@media (min-width: 768px) {
+    .tile {
+        font-size: 2rem;
+    }
+}
+
+.score-container {
+    background-color: rgba(31, 41, 55, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#restart-btn {
+    background-color: rgba(124, 58, 237, 0.8);
+    transition: all 0.2s ease;
+}
+
+#restart-btn:hover {
+    background-color: rgba(124, 58, 237, 1);
+    transform: translateY(-2px);
+}
+/* Custom animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float-animation {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .text-6xl {
+        font-size: 3rem;
+    }
+    .text-8xl {
+        font-size: 4rem;
+    }
+}
