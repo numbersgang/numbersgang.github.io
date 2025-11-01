@@ -19,6 +19,39 @@
 </head>
 
 <body class="bg-black text-white font-poppins overflow-x-hidden">
+
+    <!-- Announcement Banner -->
+<div class="announcement-banner">
+  🚀 Games still under development — stay tuned, they’ll be live soon!
+</div>
+
+<style>
+  .announcement-banner {
+    background: linear-gradient(90deg, #ff007a, #ffcc00);
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 12px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    animation: slideDown 0.6s ease-out;
+  }
+
+  @keyframes slideDown {
+    from {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+</style>
+
     <!-- Animated Background -->
     <div class="fixed inset-0 -z-10 opacity-30">
         <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/20 to-purple-900/20"></div>
@@ -412,4 +445,5 @@
 
 
 </html>
+
 
